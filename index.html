@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Reconstruction-Aware Cryo-EM Particle Picking: particle picking, contamination removal, and 2D class selection as one pipeline judged by the 3D map it delivers.">
+    <title>Reconstruction-Aware Cryo-EM Particle Picking</title>
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans:400,700|Castoro" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="paper.css">
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div class="content">
+          <h1>Reconstruction-Aware Cryo-EM Particle Picking</h1>
+          <p class="subtitle">
+            Particle picking, contamination removal, and 2D class selection as one pipeline,
+            judged by the 3D map it delivers.
+          </p>
+
+          <div class="authors" aria-label="Authors">
+            <span>Riku Itsuji<sup>1,2</sup></span>
+            <span>Yuanhao Wang<sup>3</sup></span>
+            <span>Xingjian Li<sup>3</sup></span>
+            <span>Seonghui Min<sup>3</sup></span>
+            <span>Hideo Saito<sup>1,2</sup></span>
+            <span>Min Xu<sup>3</sup></span>
+          </div>
+
+          <div class="affiliations">
+            <span><sup>1</sup>Keio University, Yokohama, Japan</span>
+            <span><sup>2</sup>Keio AI Research Center, Yokohama, Japan</span>
+            <span><sup>3</sup>Carnegie Mellon University, Pittsburgh, PA, USA</span>
+          </div>
+
+          <!-- DUMMY LINKS: replace href="#" with the real URLs before publishing. -->
+          <div class="actions" aria-label="Project links">
+            <a class="button dummy" href="#" target="_blank" rel="noopener">
+              <span class="icon"><i class="ai ai-arxiv"></i></span>
+              <span>arXiv</span>
+            </a>
+            <a class="button dummy" href="#" target="_blank" rel="noopener">
+              <span class="icon"><i class="fa-regular fa-file-pdf"></i></span>
+              <span>Paper</span>
+            </a>
+            <a class="button dummy" href="#" target="_blank" rel="noopener">
+              <span class="icon"><i class="fa-solid fa-file-lines"></i></span>
+              <span>Supplementary</span>
+            </a>
+            <a class="button dummy" href="#" target="_blank" rel="noopener">
+              <span class="icon"><i class="fa-brands fa-github"></i></span>
+              <span>Code</span>
+            </a>
+          </div>
+          <p class="note">Code will be available upon acceptance.</p>
+        </div>
+      </section>
+
+      <section class="teaser-section">
+        <div class="content">
+          <!--
+            DUMMY TEASER VIDEO.
+            Drop the real file at assets/teaser_video.mp4, then delete the placeholder
+            <div> below and uncomment this block.
+
+          <video class="project-figure teaser-video" controls autoplay muted loop playsinline
+                 preload="metadata" poster="assets/pipeline_overview.png">
+            <source src="assets/teaser_video.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          -->
+          <div class="video-placeholder teaser-video">
+            <div>
+              <strong>Teaser video</strong>
+              <small>placeholder &mdash; assets/teaser_video.mp4</small>
+            </div>
+          </div>
+
+          <figure class="teaser">
+            <img class="project-figure" src="assets/pipeline_overview.png"
+                 alt="Overview of the reconstruction-aware particle picking pipeline">
+            <figcaption>
+              <strong>Reconstruction-aware particle picking.</strong> Top: one round of the feedback loop.
+              CryoTransformer picks candidates, a MicrographCleaner mask discards the candidates on
+              contamination, and 2D class selection keeps the classes CryoSift scores as good. The
+              surviving particles serve as pseudo-labels for fine-tuning the picker. Bottom: the checkpoint
+              the loop delivers picks the full micrograph set, the same masking and 2D class selection
+              purify the picks, and the surviving stack goes to 3D reconstruction.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="content narrow abstract-body">
+          <h2>Abstract</h2>
+          <p>
+            Cryo-electron microscopy (cryo-EM) determines the structures of proteins and macromolecular
+            assemblies at near-atomic resolution, and the final 3D reconstruction depends on extracting a
+            clean particle stack from noisy micrographs. This extraction decomposes into three sub-tasks,
+            namely particle picking, contamination removal, and 2D class selection. Each of them, however,
+            is trained and evaluated in isolation, and none is optimized for the reconstruction.
+          </p>
+          <p>
+            We instead integrate the three sub-tasks into a single pipeline posed against downstream
+            reconstruction quality. We instantiate the pipeline with a state-of-the-art component for each
+            sub-task, <strong>CryoTransformer</strong> picking permissively, <strong>MicrographCleaner</strong>
+            masking contamination, and <strong>CryoSift</strong> selecting 2D classes by a continuous quality
+            score, and close the loop with a fine-tuning step that returns the surviving particles to the picker.
+          </p>
+          <p>
+            The pipeline achieves a better 3D resolution than every picker we compare. We also show that the
+            best 2D F1 is not the best resolution, so particle selection is better treated as one
+            reconstruction-aware pipeline judged by the map it delivers. Code will be available upon acceptance.
+          </p>
+        </div>
+      </section>
+
+      <section class="section section-alt">
+        <div class="content">
+          <h2>Contributions</h2>
+          <div class="contrib-grid">
+            <article>
+              <h3>Reconstruction-aware formulation</h3>
+              <p>
+                We formulate particle picking, contamination removal, and 2D class selection as a single
+                selection problem posed against downstream reconstruction, and evaluate it by reconstruction
+                resolution rather than by 2D F1 against incomplete annotations.
+              </p>
+            </article>
+            <article>
+              <h3>A purification pipeline that outperforms existing pickers</h3>
+              <p>
+                We combine a high-recall picker with contamination masking and 2D class selection, and close
+                the loop by re-training the picker on the purified particle stack. The pipeline gives the best
+                reconstruction of any picker we compare.
+              </p>
+            </article>
+            <article>
+              <h3>The best F1 is not the best reconstruction</h3>
+              <p>
+                Across the same pickers and entries, 2D detection scores do not reliably order the
+                reconstructions. Agreement with 2D annotations is therefore only a partial guide, and we judge
+                a selection by the map it delivers.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-alt">
+        <div class="content">
+          <h2>Main Results</h2>
+
+          <div class="headline">
+            <div><b>4.12 &#8491;</b><span>EMPIAR-10081<br>(CryoTransformer: 5.02)</span></div>
+            <div><b>4.37 &#8491;</b><span>EMPIAR-10093<br>(CryoTransformer: 6.78)</span></div>
+            <div><b>3.54 &#8491;</b><span>EMPIAR-10345<br>(CryoTransformer: 7.11)</span></div>
+            <div><b>3.40 &#8491;</b><span>EMPIAR-10532<br>(CryoTransformer: 4.03)</span></div>
+          </div>
+
+          <div class="table-wrap" role="region" aria-label="Main results table" tabindex="0">
+            <table class="results-table compact">
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th class="num">10081</th>
+                  <th class="num">10093</th>
+                  <th class="num">10345</th>
+                  <th class="num">10532</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th>crYOLO</th><td class="num"><span class="u">4.25</span></td><td class="num"><span class="u">4.55</span></td><td class="num"><span class="u">3.56</span></td><td class="num"><span class="u">3.54</span></td></tr>
+                <tr><th>Topaz</th><td class="num">4.56</td><td class="num">6.55</td><td class="num">3.88</td><td class="num">3.96</td></tr>
+                <tr><th>CryoSegNet</th><td class="num">4.47</td><td class="num">6.96</td><td class="num">3.76</td><td class="num">3.86</td></tr>
+                <tr><th>CryoTransformer</th><td class="num">5.02</td><td class="num">6.78</td><td class="num">7.11</td><td class="num">4.03</td></tr>
+                <tr class="ours sep"><th>Ours</th><td class="num"><strong>4.12</strong></td><td class="num"><strong>4.37</strong></td><td class="num"><strong>3.54</strong></td><td class="num"><strong>3.40</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <figure class="fig-block" style="margin-top: 28px;">
+            <img class="project-figure" src="assets/locres_maps_10081_10532.jpg"
+                 alt="Local resolution maps of the reconstructions on EMPIAR-10081 and EMPIAR-10532">
+            <figcaption>
+              <strong>3D reconstructions of EMPIAR-10081 and 10532.</strong> The best-of-three map of each picker
+              and of our pipeline, colored by the local resolution estimated on it, blue better and red worse, on
+              a scale shared within a row. Our map resolves the most fine-grained structure of the five.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="content">
+          <h2>Ablation Study</h2>
+          <div class="table-wrap block narrow-table" role="region" aria-label="Ablation study table" tabindex="0">
+            <table class="results-table compact">
+              <caption>Ablation study. The stages between picking and reconstruction are toggled on the same CryoTransformer candidate set.</caption>
+              <thead>
+                <tr>
+                  <th>mask</th><th>select</th><th>fb</th>
+                  <th class="num">10081</th><th class="num">10093</th><th class="num">10345</th><th class="num">10532</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="rowgroup"><th colspan="7">Resolution (GSFSC 0.143, &#8491;, best of three seeds, lower is better)</th></tr>
+                <tr><td class="dash">&ndash;</td><td class="dash">&ndash;</td><td class="dash">&ndash;</td><td class="num">5.02</td><td class="num">6.78</td><td class="num">7.11</td><td class="num">4.03</td></tr>
+                <tr><td class="check">&#10003;</td><td class="dash">&ndash;</td><td class="dash">&ndash;</td><td class="num">4.74</td><td class="num">7.19</td><td class="num">6.96</td><td class="num">3.98</td></tr>
+                <tr><td class="dash">&ndash;</td><td class="check">&#10003;</td><td class="dash">&ndash;</td><td class="num">4.15</td><td class="num">4.61</td><td class="num"><span class="u">3.55</span></td><td class="num">3.47</td></tr>
+                <tr><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="dash">&ndash;</td><td class="num"><strong>4.08</strong></td><td class="num"><span class="u">4.52</span></td><td class="num">3.59</td><td class="num"><span class="u">3.43</span></td></tr>
+                <tr class="ours"><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="num"><span class="u">4.12</span></td><td class="num"><strong>4.37</strong></td><td class="num"><strong>3.54</strong></td><td class="num"><strong>3.40</strong></td></tr>
+
+                <tr class="rowgroup"><th colspan="7">Particles retained, with the cumulative reduction from the raw picks</th></tr>
+                <tr><td class="dash">&ndash;</td><td class="dash">&ndash;</td><td class="dash">&ndash;</td><td class="num">259,335</td><td class="num">754,434</td><td class="num">494,061</td><td class="num">604,430</td></tr>
+                <tr><td class="check">&#10003;</td><td class="dash">&ndash;</td><td class="dash">&ndash;</td><td class="num">244,924 <span class="sub">(&minus;5.6%)</span></td><td class="num">753,440 <span class="sub">(&minus;0.1%)</span></td><td class="num">484,649 <span class="sub">(&minus;1.9%)</span></td><td class="num">576,473 <span class="sub">(&minus;4.6%)</span></td></tr>
+                <tr><td class="check">&#10003;</td><td class="check">&#10003;</td><td class="dash">&ndash;</td><td class="num">126,181 <span class="sub">(&minus;51.3%)</span></td><td class="num">301,589 <span class="sub">(&minus;60.0%)</span></td><td class="num">29,214 <span class="sub">(&minus;94.1%)</span></td><td class="num">178,722 <span class="sub">(&minus;70.4%)</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <figure class="fig-block" style="margin-top: 30px;">
+            <img class="project-figure" src="assets/pick_fates.jpg"
+                 alt="Picks remaining after each stage of the pipeline on EMPIAR-10081 and 10532">
+            <figcaption>
+              <strong>What survives each stage of the pipeline.</strong> The picks that remain after each stage on
+              one micrograph of EMPIAR-10081 (top) and one of EMPIAR-10532 (bottom) at round 1, with the annotated
+              particles repeated on the right.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="content">
+          <h2>The Best 2D F1 Is Not the Best Reconstruction</h2>
+
+          <figure class="fig-block narrow-figure">
+            <img class="project-figure" src="assets/f1_vs_resolution.png"
+                 alt="Scatter plot of macro F1 against GSFSC resolution for the four base pickers">
+            <figcaption>
+              Macro F1 of the four base pickers on the 300 annotated micrographs against the GSFSC 0.143
+              resolution of the main results, with marker shape the picker and color the dataset. The dashed
+              line is a guide to the eye for reading orderings within one color, not distances across colors.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="content narrow">
+          <h2>BibTeX</h2>
+          <!-- DUMMY CITATION: replace once the paper has real citation information. -->
+          <pre>@inproceedings{itsuji2027reconstruction,
+  title     = {Reconstruction-Aware Cryo-EM Particle Picking},
+  author    = {Itsuji, Riku and Wang, Yuanhao and Li, Xingjian and
+               Min, Seonghui and Saito, Hideo and Xu, Min},
+  booktitle = {TBD},
+  year      = {2027}
+}</pre>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      <div class="content">
+        <p>Reconstruction-Aware Cryo-EM Particle Picking &mdash; project page.</p>
+      </div>
+    </footer>
+
+  </body>
+</html>
