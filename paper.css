@@ -664,14 +664,6 @@ pre {
   font-size: 13px;
 }
 
-.button.dummy {
-  background: #7a7a7a;
-}
-
-.button.dummy:hover {
-  background: #666;
-}
-
 .subsec {
   margin: 0 0 10px;
   font-family: "Google Sans", "Noto Sans", Arial, Helvetica, sans-serif;
